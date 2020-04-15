@@ -44,7 +44,7 @@
 		
 		public function inserir(){
 			//$dbc = new db();
-			echo "debugando entrada <br><br>$this->nome<br>$this->senha<br>$this->telefone<br>$this->email<br>$this->setor = $this->setor<br><br>";
+			//echo "debugando entrada <br><br>$this->nome<br>$this->senha<br>$this->telefone<br>$this->email<br>$this->setor = $this->setor<br><br>";
 			
 			//verifica se nome ja existe / seleciona proximo id de usuario
 			$sql = "select max(usuario)+1 from usuarios union select usuario FROM usuarios WHERE nome = '$this->nome' ";
@@ -112,17 +112,20 @@
 		private $usuario;
 		private $telefone;
 		
-		public function inserir(int $usuario, $telefone){
+		public function inserir(int $usuario, $telefones){
 			$dbc = new db();
 			$con = $dbc->conecta_mysql();
-			$sql = "insert into telefones(usuario, telefone) values('$usuario','$telefone')";
+			foreach($telefones as $telefone){
+				if($telefone == '') continue;
+				$sql = "insert into telefones(usuario, telefone) values('$usuario','$telefone')";	
+				if(mysqli_query($con, $sql)) {
+					echo 'Telefone registrado com sucesso<br>';
+				}
+				else {
+					echo "Errro ao registrar telefone - $telefone<br>";
+				}
+			}
 			//substitur por alert
-			if(mysqli_query($con, $sql)) {
-				echo 'Telefone registrado com sucesso<br>';
-			}
-			else {
-				echo 'Errro ao registrar telefone<br>';
-			}
 		}
 		
 		public function listar_telefones_usuarios($busca){
@@ -134,7 +137,7 @@
 			} else{
 				$sql .= "where usuarios.nome like '%$busca%' ";
 			}
-			$sql .= 'order by nome ';
+			$sql .= 'order by setor, nome ';
 			//echo $sql;
 			
 			$resultado = mysqli_query($con, $sql);
