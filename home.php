@@ -1,5 +1,8 @@
 <?php
-	session_start();
+
+	if(!isset($_SESSION['usuario']))
+		session_start();
+		
 	if(!isset($_SESSION['usuario']))
 		header('Location: index.php?erro=1');
 ?>
@@ -8,7 +11,7 @@
 	<head>
 		<meta charset="UTF-8">
 
-		<title>Agenda</title>
+		<title>Compartilhamento de Contatos</title>
 		
 		<!-- jquery - link cdn -->
 		<script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
@@ -19,7 +22,8 @@
 		<script type="text/javascript">
 			
 			$(document).ready(function(){
-				$('#btn_busca').click(function(){
+
+				function atualiza_busca(){
 					var serializa = $('#form_busca').serialize();
 					// $('#teste').text(serializa);
 					$.ajax({
@@ -30,34 +34,35 @@
 							if(serializa) $('#lista_dados').html(data) //lista_dados
 							else $('#lista_dados').html('');
 						}
-					});				
+					});	
+				}
+
+				$('#btn_busca').click(function(){
+					atualiza_busca();	
 				});
+
+
+				$('#id_buscar').keypress(function(event){
+						var tecla = event.keyCode;
+												
+						if(tecla == '13'){
+							//alert(tecla);
+							atualiza_busca();
+							return false;
+						}
+						
+				});
+
 			});
 			
 			
-			//Código bugado
-			// $(document).ready(function(){
-				// $('#btn_busca').click(function(event){
-					// serializa = $('#form_busca').serialize;
-					// alert(serializa);
-					// $.ajax({
-						// url: "pesquisa.php",
-						// method: 'POST',
-						// data: serializa,
-						// success: function(data){
-																								 
-							// $('#lista_dados').html(data);
-							
-						// },
-					// });
-				// });
-			// })
+			
 			
 		</script>
 	
 	</head>
 
-	<body>
+	<body  style="background-image: linear-gradient(to left, white, lightgray);">
 
 		<!-- Static navbar -->
 	    <nav class="navbar navbar-default navbar-static-top">
@@ -70,13 +75,16 @@
 	            <span class="icon-bar"></span>
 	          </button>
 	          <img src="imagens/agenda.png" />
-			  <?php
-				echo 'Bem vindo(a) '. $_SESSION['usuario'];
-			  ?>
+			  <a href="meus_dados.php">
+				<?php
+						echo 'Bem vindo(a) '. $_SESSION['usuario'];
+				?>
+			  </a>
 	        </div>
 	        
 	        <div id="navbar" class="navbar-collapse collapse">
 	          <ul class="nav navbar-nav navbar-right">
+			    <li><a href="calendario/calendario.php">Calendário</a></li>
 	            <li><a href="sair.php">Sair</a></li>
 	          </ul>
 	        </div><!--/.nav-collapse -->
@@ -94,7 +102,7 @@
 	    		<div class="panel panel-default">
 					<div class="panel-body">
 						<form class="input-group" id = "form_busca">
-							<input type="text" class="form-control" placeholder='telefone ou usuario' name="buscar" id="id_buscar">
+							<input type="text" class="form-control" placeholder='telefone ou usuário' name="buscar" id="id_buscar">
 								<span class="input-group-btn">
 									<button class='btn btn-default' id="btn_busca" type='button'>Pesquisar</button>
 								</span>

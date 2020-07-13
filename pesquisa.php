@@ -5,6 +5,7 @@
 	<th>Telefone</th>
   </tr>
 </thead>
+
 <?php
 	$busca = $_POST['buscar'];
 	session_start();

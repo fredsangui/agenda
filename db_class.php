@@ -3,11 +3,11 @@
 		//host
 		private $host = 'localhost';
 		//usuario
-		private $usuario = 'root';
+		private $usuario = 'root';//id13848263_root
 		//semha
-		private $senha = '';
+		private $senha = '';//_^X$H6Vgf@>YJ+xs
 		//nome bd
-		private $database = 'agenda';
+		private $database = 'agenda';//id13848263_agenda
 		
 		public function conecta_mysql(){
 			$con = mysqli_connect($this->host, $this->usuario, $this->senha, $this->database);
@@ -16,7 +16,7 @@
 			mysqli_set_charset($con, 'utf8');
 			
 			if(mysqli_connect_error()){
-				echo 'Tentei conectar com o Banco de Dados mas não deu.' . mysqli_connect_error();	
+				echo 'Tentativa de conectar com o Banco de Dados resultou em Erro:</br>' . mysqli_connect_error();	
 			}			
 			return $con;
 		}
@@ -29,8 +29,11 @@
 		private $telefone;
 		private $email;
 		private $setor;
-		
-		public function __construct(){}
+		private $usuario_id;
+
+		public function get_usuario_id(){
+			return $this->usuario_id;
+		}
 		
 		function usuarios_parametros($nome, $senha, $telefone, $email, $setor){//
 			$obj = new usuarios();
@@ -41,10 +44,22 @@
 			$obj->setor = $setor;
 			return $obj;
 		}
+
+		public function atualiza_usuario($nome, $email, $setor, $senha){
+			$con = $this->conecta_mysql();
+			if($senha == ''){
+				$sql = "update usuarios set email='$email', setor='$setor' where nome = '$nome'";
+			}else{
+				$sql = "update usuarios set email='$email', setor='$setor', senha='$senha' where nome = '$nome'";
+			}
+			//echo $sql."<br>";
+			if(mysqli_query($con, $sql))
+				$_POST['mensagem'] = 1; // Mensagem de Sucesso
+			else
+				$_POST['mensagem'] = 'Erro insperado';
+		}
 		
 		public function inserir(){
-			//$dbc = new db();
-			//echo "debugando entrada <br><br>$this->nome<br>$this->senha<br>$this->telefone<br>$this->email<br>$this->setor = $this->setor<br><br>";
 			
 			//verifica se nome ja existe / seleciona proximo id de usuario
 			$sql = "select max(usuario)+1 from usuarios union select usuario FROM usuarios WHERE nome = '$this->nome' ";
@@ -54,49 +69,30 @@
 			$id_usuario = $proximo[0];
 			
 			$existe = mysqli_fetch_array($resultado);
+			//Não permitir usuarios de mesmo nome
 			if(isset($existe[0])){
-				echo 'Existe outro usuario cadastrado com esse nome.<br>';
-				header("refresh: 6;inscrevase.php");
-				die;
+				$_POST['mensagem'] = '*Existe outro usuario cadastrado com esse nome.<br>';
+				return false;
 			}
-			//unset($existe[0]);			
-			
-			// $sql = "select count(usuario) from usuarios where nome = '$this->nome' group by usuario";
-			// $resultado = mysqli_query($con, $sql);
-			// $id_usuario = mysqli_fetch_array($resultado);			
-			// if($id_usuario[0] != 0){
-				// echo 'Nome do usuario já está cadastrado.<br>';
-				// echo "<button class='btn btn-primary form-control' onClick=\"window.location = 'http://localhost/twitter_clone/inscrevase.php'\">Voltar</button>";
-				// exit;
-			// }
 			
 			$sql = "insert into usuarios(nome, senha, email, setor) values('$this->nome', '$this->senha', '$this->email', '$this->setor') ";
 			
-			if(mysqli_query($con, $sql)){
-				echo 'Usuário cadastrado com sucesso!!!<br>';
+			if($result = mysqli_query($con, $sql)){
+				$_POST['mensagem'] = 1;// 'Usuário cadastrado com sucesso!!!<br>';
 			}else{
-				echo 'Erro ao inserir registro de usuario<br>';
-				echo "<button class='btn btn-primary form-control' onClick=\"window.location = 'http://localhost/twitter_clone/inscrevase.php'\">Voltar</button>";
+				$_POST['mensagem'] ='Erro ao inserir registro de usuario<br>';
 				exit;
 			}
-			////Não permitir usuarios de mesmo nome
-			// $sql = "select usuario, count(usuario) as n_usuarios from usuarios where nome = '$this->nome' group by usuario";
-			// $resultado = mysqli_query($con, $sql);
-			// if($resultado){
-				// $id_usuario = mysqli_fetch_array($resultado);
-				////if($id_usuario['n_usuarios'] > 1)
-				// echo "Consulta: $sql<br>Registro retornou valor: $id_usuario[0]<br/>";
-				// var_dump($id_usuario[0]);
-				// $tel = new telefones();
-				// $tel->inserir($id_usuario[0],  $this->telefone);				
-			// }
+		
 			$tel = new telefones();
 			$tel->inserir($id_usuario,  $this->telefone);
+			$this->usuario_id = $id_usuario;
+			return $result;
 		}
 		
 		public function autentica_usuario($nome, $senha){
 			$con = $this->conecta_mysql();
-			$sql = "select usuario, nome, senha, email, endereco from usuarios where nome = '$nome'";
+			$sql = "select usuario, nome, senha, email, setor from usuarios where nome = '$nome'";
 			$resultado = mysqli_query($con, $sql);
 			//$dados = $resultado ? mysqli_fetch_array($resultado) : False;
 			if($resultado){
@@ -106,42 +102,91 @@
 				} else if(isset($dados['nome'])) return 3;
 			}else return False;
 		}		
+
+		public function get_usuario($nome){
+			$con = $this->conecta_mysql();
+			$sql = "select usuario, nome, senha, email, endereco from usuarios where nome = '$nome'";
+			$resultado = mysqli_query($con, $sql);
+			//$dados = $resultado ? mysqli_fetch_array($resultado) : False;
+			if($resultado){
+				$dados = mysqli_fetch_array($resultado);
+				return $dados; 
+			}else return False;
+		}
+
+		public function registra_eventos($usuario, $titulo, $inicio, $fim, $diatodo){
+			$con = $this->conecta_mysql();
+			$sql = "INSERT INTO lembretes(usuario, titulo, inicio, fim, diatodo) "
+			. "VALUES ($usuario,'$titulo','$inicio','$fim',$diatodo)";
+			$resultado = mysqli_query($con, $sql);
+			//echo $sql . "<br>";
+			return $resultado;
+		}
+
+		public function get_lembretes($usuario){
+			$con = $this->conecta_mysql();
+			$sql = "SELECT * FROM lembretes WHERE usuario = '$usuario' order by lembrete DESC";
+			$resultado = mysqli_query($con, $sql);
+			return $resultado;
+		}
+
+		public function altera_lembrete($ini, $fim, $id){
+			$con = $this->conecta_mysql();
+			$sql = "UPDATE lembretes set inicio='$ini', fim='$fim' where lembrete= $id";
+			$resultado = mysqli_query($con, $sql);
+			return $resultado;
+		}
 	}
 	
-	class telefones{
+	class telefones extends db{
 		private $usuario;
 		private $telefone;
 		
-		public function inserir(int $usuario, $telefones){
-			$dbc = new db();
-			$con = $dbc->conecta_mysql();
-			foreach($telefones as $telefone){
-				if($telefone == '') continue;
-				$sql = "insert into telefones(usuario, telefone) values('$usuario','$telefone')";	
-				if(mysqli_query($con, $sql)) {
-					echo 'Telefone registrado com sucesso<br>';
-				}
-				else {
-					echo "Errro ao registrar telefone - $telefone<br>";
-				}
+		public function inserir($usuario, $telefones){
+			$con = $this->conecta_mysql();
+			if(isset($telefones)){
+				foreach($telefones as $telefone){
+					if($telefone == '') continue;
+					$sql = "insert into telefones(usuario, telefone) values('$usuario','$telefone')";	
+					if(mysqli_query($con, $sql)) {
+						$_POST['mensagem'] = 1;// 'Telefone registrado com sucesso<br>';
+					}
+					else {
+						$_POST['mensagem'] = "Errro ao registrar telefone - $telefone<br>";
+						exit;
+						//header('Location: index.php?result=3');
+					}
+				}	
 			}
 			//substitur por alert
 		}
 		
 		public function listar_telefones_usuarios($busca){
-			$dbc = new db();
-			$con = $dbc->conecta_mysql();
-			$sql = "SELECT setor, nome, telefone from usuarios JOIN telefones ON usuarios.usuario = telefones.usuario ";
+			$con = $this->conecta_mysql();
+			$sql = "SELECT setor, nome, telefone, email from usuarios JOIN telefones ON usuarios.usuario = telefones.usuario ";
 			if(is_numeric($busca)){
 				$sql .= "where telefones.telefone like '%$busca%' ";				
 			} else{
 				$sql .= "where usuarios.nome like '%$busca%' ";
 			}
 			$sql .= 'order by setor, nome ';
-			//echo $sql;
+			//echo $sql."<br>";
 			
 			$resultado = mysqli_query($con, $sql);
 			return $resultado;
+		}
+
+		public function apaga_telefones_usuario($usuario_id){
+			$con = $this->conecta_mysql();
+			$sql = "delete from telefones where usuario = " . $usuario_id;
+			//echo $sql . '<br>';
+			if(mysqli_query($con, $sql)){
+				$_POST['mensagem'] = 1; //sucesso
+			}else{
+				//echo 'Erro ao apagar telefones.<br>';
+				$_POST['mensagem'] = 'Erro ao apagar telefones.<br>';
+			}
+			//return $resultado;
 		}
 	}
 

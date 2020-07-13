@@ -9,7 +9,16 @@
 	
 	
 	$usuario = usuarios::usuarios_parametros($nome, $senha, $telefone, $email, $setor);
-	$usuario->inserir();
-	//$_SESSION['usuario'] = $nome;
-	//header('Location: home.php');
+	$funciona = $usuario->inserir();
+	if($funciona){
+		$_SESSION['usuario'] = $nome;
+		$_SESSION['setor']   = $setor;
+		$_SESSION['email']   = $email;
+		$_SESSION['usuario_id']   = $usuario->get_usuario_id();
+		include_once('home.php');
+	}else{
+		//echo "Ocorreu um erro ao inserir os dados.";
+		include_once('inscrevase.php');
+	}
+	
 ?>

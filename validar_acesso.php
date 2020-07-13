@@ -1,33 +1,40 @@
 <?php
+	
 	session_start();
 	require_once('db_class.php');
 	$usuario = $_POST['usuario'];
 	$senha    = md5($_POST['senha']);
 	
-	echo $usuario . '<br>'; 
-	echo $senha . '<br>';
+
 	
 	$dbu = new usuarios();
 	$dados = $dbu->autentica_usuario($usuario, $senha);
 	//var_dump($dados);
 	
-	$teste = isset($dados['usuario']) ? 'retornou valor<br>' : 'vazio';
+	//$teste = isset($dados['usuario']) ? 'retornou valor<br>' : 'vazio';
 	
-	echo $teste;//$dados['usuario'] . 'novo';
+	//echo $teste;//$dados['usuario'] . 'novo';
 	if($dados === False){
-		header('Location: http://localhost/twitter_clone/index.php?erro=2');//erro no BD
+	    echo "erroBD";
+	    $_GET['erro'] = 2;
+		include_once('index.php');//erro no BD
 		exit;	
 	}
 	if($dados === 3){
-		header('Location: http://localhost/twitter_clone/index.php?erro=3'); //senha incorreta
+	    $_GET['erro'] = 3;
+		include_once('index.php'); //senha incorreta
 		exit;
 	}
-	if(isset($dados['usuario'])){//usuario não encontrado
+	if(isset($dados['usuario'])){//usuario encontrado
 		$_SESSION['usuario'] = $dados['nome'];
-		header('Location: home.php');
-		//echo "<script>alert('Usuário encontrado.');</script>";
+		$_SESSION['setor'] = $dados['setor'];
+		$_SESSION['email'] = $dados['email'];
+		$_SESSION['usuario_id'] = $dados['usuario'];
+		
+		include_once('home.php');
 	}else{
-		header('Location: http://localhost/twitter_clone/index.php ? erro=1');
+	    $_GET['erro'] = 1;
+		include_once('index.php');
 		
 	}
 

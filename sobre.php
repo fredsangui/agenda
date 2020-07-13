@@ -1,5 +1,4 @@
 <?php
-    session_start();
 	$erro = isset($_GET['erro']) ? $_GET['erro'] : '';
 	//echo phpversion();
 ?>
@@ -42,7 +41,7 @@
 		</script>
 	</head>
 
-	<body style="background-image: linear-gradient(to left, white, lightgray);">
+	<body style="background-color: LightGrey;">
 
 		<!-- Static navbar -->
 	    <nav class="navbar navbar-default navbar-static-top">
@@ -55,7 +54,9 @@
 	            <span class="icon-bar"></span>
 	          </button>
 			  <!-- <div>Ícones feitos por <a href="https://www.flaticon.com/br/autores/freepik" title="Freepik">Freepik</a> from <a href="https://www.flaticon.com/br/" title="Flaticon">www.flaticon.com</a></div>-->
-	          <img src="imagens/agenda.png" />
+	          <a href="index.php">
+                <img src="imagens/agenda.png" />
+              </a>
 	        </div>
 	        
 	        <div id="navbar" class="navbar-collapse collapse">
@@ -90,7 +91,7 @@
 						</form>
 				  	</ul>
 	            </li>
-	            <li><a href="sobre.php">Sobre</a></li>
+                <li><a href="sobre.php">Sobre</a></li>
 				
 	          </ul>
 	        </div><!--/.nav-collapse -->
@@ -102,8 +103,7 @@
 
 	      <!-- Main component for a primary marketing message or call to action -->
 	      <div class="jumbotron">
-	        <h2>Bem Vindo(a) ao Serviço de Compartilhamento de Contato da sua Empresa.</h2>
-	        
+	        <p>Este sistema foi desenvolvido para facilitar e manter registros de contatos empresariais, acessíveis e atualizados. Cada funcionário pode criar e atualizar seu cadastro, além de buscar contatos de outros funcionários. </p>
 	      </div>
 
 	      <div class="clearfix"></div>

@@ -3,7 +3,7 @@
 	<head>
 		<meta charset="UTF-8">
 
-		<title>Agenda</title>
+		<title>Compartilhamento de Contatos</title>
 		
 		<!-- jquery - link cdn -->
 		<script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
@@ -14,7 +14,7 @@
 	
 	</head>
 
-	<body>
+	<body style="background-color: LightGrey;">
 
 		<!-- Static navbar -->
 	    <nav class="navbar navbar-default navbar-static-top">
@@ -45,6 +45,13 @@
 	    	<div class="col-md-4"></div>
 	    	<div class="col-md-4">
 	    		<h3>Inscreva-se já.</h3>
+				<?php 
+					if(isset($_POST['mensagem'])){
+						echo '<p style="color: red">';
+						echo $_POST['mensagem'];
+						echo '</p>';
+					}
+				?>
 	    		<br />
 				<form method="post" action="registra_usuario.php" id="formCadastrarse">
 					<div class="form-group">
@@ -57,6 +64,10 @@
 					
 					<div class="form-group">
 						<input type="password" class="form-control" id="senha" name="senha" placeholder="Senha" required="requiored">
+					</div>
+
+					<div class="form-group">
+						<input type="password" class="form-control" id="conf_senha" name="conf_senha" placeholder="Repita a senha" required="requiored">
 					</div>
 						
 					<div class="form-group">
@@ -74,7 +85,7 @@
 						</div>
 					</div>
 					
-					<button type="submit" class="btn btn-primary form-control">Inscreva-se</button>
+					<button type="submit" class="btn btn-primary form-control" id='btn_inscrever'>Inscreva-se</button>
 				</form>
 			</div>
 			<div class="col-md-4"></div>
@@ -112,7 +123,7 @@
 					//div_telefones = document.getElementById("telefones_ad"); 
 					adicionar = '<div class="input-group form-group" id="tel_list'+c_telefones+'">';
 					adicionar += '<input type="number" class="form-control" id="'+n_telefone;
-					adicionar += '" placeholder="'+n_telefone+'" name="telefone[]";//"'+n_telefone+'">';
+					adicionar += '" placeholder="'+n_telefone+'" name="telefone[]">';//"'+n_telefone+'">';
 					adicionar += "<span class = 'input-group-btn'>";
 					adicionar += '<button class="apaga_tel btn btn-danger" id="tel_list'+c_telefones+'" type="button"><strong>-</strong></button>';
 					adicionar += "</span>";
@@ -145,6 +156,17 @@
 					console.log(n_telefone);
 					habilita_ad();
 				})	
+
+				$("#btn_inscrever").on("click", function(event){
+					senha = $("#senha").val();
+					confirma = $("#conf_senha").val();
+					if(senha != confirma){
+						alert("Senhas não correspondem.");
+						$("#senha").focus();
+						return false;
+					}
+					
+				});
 			});
 			
 		</script>
